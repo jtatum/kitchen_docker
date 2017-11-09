@@ -1,0 +1,25 @@
+stages:
+  - build
+  - push
+.builder: &docker-builder
+  tags:
+    - docker
+    - mac
+  image: docker:git
+  services:
+    - docker:dind
+build-docker:
+  <<: *docker-builder
+  stage: build
+  script:
+    - docker build -t kitchen-docker .
+push-docker:
+  <<: *docker-builder
+# Make this manual until we get ECR credentials in place
+  when: manual
+  only:
+    - master
+  stage: push
+  script:
+    - docker build -t kitchen-docker .
+    - docker push kitchen-docker
